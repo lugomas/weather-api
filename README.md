@@ -35,3 +35,17 @@ This project is licensed under the MIT License.
 
 ## Project Inspiration
 This project was developed based on the guidelines provided by [roadmap.sh's Weather API project](https://roadmap.sh/projects/weather-api-wrapper-service)
+
+## Project Backlog
+- Handle errors gracefully
+  - use log framework
+- Create dockerfile for redis to run it as container
+  - refactor code if necessary
+- Add comments to Code
+- Replace redundant code for functions
+- Replace repetitive values for variables
+- Handle cases such as:
+  - Redis stopped working. Retrieve directly from 3rd party API
+  - Redis didn't start. Retrieve directly from 3rd party API
+  - APP couldn't connect to REDIS. Retrieve directly from 3rd party API
+- Review readme
