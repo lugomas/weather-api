@@ -30,7 +30,7 @@ func FetchWeatherData(address string) (map[string]interface{}, error) {
 
 	// Cache miss - Fetch from external API
 	log.Printf("INFO: fetching data from 3rd party API for address: %s", address)
-	apiKey := "LVRLN2UTN39JXSQPU3MEK6Z9B" // Replace with your actual API key.
+	apiKey := "<include your API Key>" // Replace with your actual API key.
 	url := fmt.Sprintf("https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/%s/today?unitGroup=metric&key=%s&contentType=json", address, apiKey)
 
 	resp, err := http.Get(url)
