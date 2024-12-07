@@ -2,29 +2,34 @@ package repository
 
 import (
 	"context"
-	"github.com/redis/go-redis/v9"
-	"log"
+	"log/slog"
 	"time"
+
+	"github.com/redis/go-redis/v9"
 )
 
-var ctx = context.Background()
+var (
+	ctx         = context.Background()
+	RedisClient = redis.NewClient(&redis.Options{
+		Addr:     "localhost:6379",
+		Password: "",
+		DB:       0,
+	})
+	logger = slog.Default()
+)
 
-// Connect to Redis
-var RedisClient = redis.NewClient(&redis.Options{
-	Addr:     "localhost:6379",
-	Password: "",
-	DB:       0,
-})
-
-// InitRedis Init initializes the Redis client.
+// InitRedis initializes the Redis client.
 func InitRedis(redisAddr string) {
+	// Update Redis address if provided
+	RedisClient.Options().Addr = redisAddr
 
 	// Test the connection
 	_, err := RedisClient.Ping(ctx).Result()
 	if err != nil {
-		log.Fatalf("Failed to connect to Redis: %v", err)
+		logger.Error("Failed to connect to Redis", "error", err)
+		panic(err) // Exit the application if Redis is unavailable
 	}
-	log.Printf("INFO: connected to redis successfully")
+	logger.Info("Connected to Redis successfully", "address", redisAddr)
 }
 
 // GetCachedWeather checks if weather data is cached in Redis.
@@ -34,8 +39,10 @@ func GetCachedWeather(address string) (string, error) {
 		// Cache miss
 		return "", nil
 	} else if err != nil {
+		logger.Error("Failed to get cached weather data", "error", err, "address", address)
 		return "", err
 	}
+	logger.Info("Cache hit", "address", address)
 	return val, nil
 }
 
@@ -43,6 +50,7 @@ func GetCachedWeather(address string) (string, error) {
 func SetCachedWeather(address string, data string) error {
 	err := RedisClient.Set(ctx, address, data, 10*time.Minute).Err()
 	if err != nil {
+		logger.Error("Failed to set cached weather data", "error", err, "address", address)
 		return err
 	}
 	return nil

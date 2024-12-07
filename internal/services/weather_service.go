@@ -3,64 +3,76 @@ package services
 import (
 	"encoding/json"
 	"fmt"
-	"log"
+	"log/slog"
 	"net/http"
+	"os"
 	"roadmaps/projects/weather-api/internal/repository"
 )
 
 // FetchWeatherData retrieves weather data for a given address.
 func FetchWeatherData(address string) (map[string]interface{}, error) {
+	logger := slog.Default()
+
 	// Check Redis cache for data
 	cachedData, err := repository.GetCachedWeather(address)
 	if err != nil {
-		log.Printf("ERROR: error checking cache for address %s: %v", address, err)
+		logger.Error("Error checking cache for address", "address", address, "error", err)
 	} else if cachedData != "" {
 		// Cache hit
-		log.Printf("INFO: data retrieved from cache for address: %s", address)
-		log.Printf("INFO: API response: %v", string(cachedData))
+		logger.Info("Data retrieved from cache", "address", address)
+		logger.Info("api response: ", "response", cachedData)
 		var cachedResult map[string]interface{}
 		if err := json.Unmarshal([]byte(cachedData), &cachedResult); err != nil {
-			log.Printf("ERROR: failed to unmarshal cached data: %v", err)
+			logger.Error("Failed to unmarshal cached data", "address", address, "error", err)
 		} else {
 			return cachedResult, nil
 		}
 	} else {
-		log.Printf("INFO: cache miss for address: %s", address)
+		logger.Info("Cache miss", "address", address)
 	}
 
 	// Cache miss - Fetch from external API
-	log.Printf("INFO: fetching data from 3rd party API for address: %s", address)
-	apiKey := "<include your API Key>" // Replace with your actual API key.
+	logger.Info("Fetching data from external API", "address", address)
+	apiKey := os.Getenv("WEATHER_API_KEY")
+	if apiKey == "" {
+		slog.Error("API key not found in environment variables")
+		return nil, fmt.Errorf("API key not configured")
+	}
+
 	url := fmt.Sprintf("https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/%s/today?unitGroup=metric&key=%s&contentType=json", address, apiKey)
 
 	resp, err := http.Get(url)
 	if err != nil {
-		return nil, fmt.Errorf("ERROR: failed to call weather API: %w", err)
+		logger.Error("Failed to call weather API", "address", address, "error", err)
+		return nil, fmt.Errorf("failed to call weather API: %w", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("ERROR: weather API returned status %d", resp.StatusCode)
+		logger.Error("Weather API returned non-OK status", "address", address, "status", resp.StatusCode)
+		return nil, fmt.Errorf("weather API returned status %d", resp.StatusCode)
 	}
 
-	log.Printf("INFO: successfully fetched data from 3rd party API for address: %s", address)
+	logger.Info("Successfully fetched data from external API", "address", address)
 
 	var result map[string]interface{}
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return nil, fmt.Errorf("ERROR: failed to decode weather API response: %w", err)
+		logger.Error("Failed to decode weather API response", "address", address, "error", err)
+		return nil, fmt.Errorf("failed to decode weather API response: %w", err)
 	}
 
 	// Cache the fetched data in Redis
 	dataBytes, err := json.Marshal(result)
-	if err == nil {
-		if cacheErr := repository.SetCachedWeather(address, string(dataBytes)); cacheErr != nil {
-			log.Printf("ERROR: failed to cache data for address %s: %v", address, cacheErr)
-		} else {
-			log.Printf("INFO: data cached successfully for address: %s", address)
-			log.Printf("INFO: API response: %v", string(dataBytes))
-		}
+	if err != nil {
+		logger.Error("Failed to marshal data for caching", "address", address, "error", err)
 	} else {
-		log.Printf("ERROR: failed to marshal data for caching: %v", err)
+		if cacheErr := repository.SetCachedWeather(address, string(dataBytes)); cacheErr != nil {
+			logger.Error("Failed to cache data", "address", address, "error", cacheErr)
+		} else {
+			logger.Info("Weather data cached successfully", "address", address, "expiration", "10m")
+			logger.Info("api response: ", "response", string(dataBytes))
+		}
 	}
+
 	return result, nil
 }

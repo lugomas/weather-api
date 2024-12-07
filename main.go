@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/gorilla/mux"
-	"log"
+	"log/slog"
 	"net/http"
 	api "roadmaps/projects/weather-api/internal/api"
 	"roadmaps/projects/weather-api/internal/repository"
@@ -20,6 +20,9 @@ func main() {
 	r.HandleFunc("/weather", api.GetWeather).Methods("GET")
 
 	port := "8080"
-	log.Printf("INFO: server is running on port %s", port)
-	log.Fatal(http.ListenAndServe(":"+port, r))
+	slog.Info("Server is starting", "port", port)
+	// Start the HTTP server
+	if err := http.ListenAndServe(":"+port, r); err != nil {
+		slog.Error("Server failed to start", "error", err)
+	}
 }
