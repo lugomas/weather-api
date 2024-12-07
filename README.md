@@ -22,13 +22,18 @@ go build -o weather-api
 
 ## Running the Application
 1. Ensure Redis is installed and running:
-   - For macOS:
-       Install Redis: ```brew install redis```
-       Start Redis: ```brew services start redis```
-2. Start the application: ```./weather-api```
+    For macOS:
+    Install Redis: 
+    ```brew install redis```
+    Start Redis: 
+    ```brew services start redis```
+2. Start the application: 
+   ```./weather-api```
 3. Access the app:
-   - Open your web browser and navigate to: ```http://localhost:8080/weather?address=sao%20paulo```
-   - Or test via cURL: ```curl -v "http://localhost:8080/weather?address=london"```
+   Open your web browser and navigate to 
+   ```http://localhost:8080/weather?address=sao%20paulo```
+   Or test via cURL
+   ```curl -v "http://localhost:8080/weather?address=london"```
  
 ## License
 This project is licensed under the MIT License.
@@ -37,15 +42,9 @@ This project is licensed under the MIT License.
 This project was developed based on the guidelines provided by [roadmap.sh's Weather API project](https://roadmap.sh/projects/weather-api-wrapper-service)
 
 ## Project Backlog
-- Handle errors gracefully
-  - use log framework
 - Create dockerfile for redis to run it as container
   - refactor code if necessary
-- Add comments to Code
-- Replace redundant code for functions
-- Replace repetitive values for variables
 - Handle cases such as:
   - Redis stopped working. Retrieve directly from 3rd party API
   - Redis didn't start. Retrieve directly from 3rd party API
   - APP couldn't connect to REDIS. Retrieve directly from 3rd party API
-- Review readme
