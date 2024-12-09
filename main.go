@@ -11,7 +11,7 @@ import (
 func main() {
 
 	// Initialize Redis client
-	redisAddr := "localhost:6379" // Replace with your Redis server address
+	redisAddr := "redis:6379" // Replace with your Redis server address
 	repository.InitRedis(redisAddr)
 
 	r := mux.NewRouter()
