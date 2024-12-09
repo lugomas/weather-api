@@ -11,7 +11,7 @@ import (
 var (
 	ctx         = context.Background()
 	RedisClient = redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
+		Addr:     "redis:6379",
 		Password: "",
 		DB:       0,
 	})
@@ -23,13 +23,21 @@ func InitRedis(redisAddr string) {
 	// Update Redis address if provided
 	RedisClient.Options().Addr = redisAddr
 
-	// Test the connection
-	_, err := RedisClient.Ping(ctx).Result()
-	if err != nil {
-		logger.Error("Failed to connect to Redis", "error", err)
-		panic(err) // Exit the application if Redis is unavailable
+	// Test the connection with retry logic
+	for i := 0; i < 5; i++ { // Try 5 times
+		_, err := RedisClient.Ping(ctx).Result()
+		if err != nil {
+			logger.Error("Failed to connect to Redis", "attempt", i+1, "error", err)
+			time.Sleep(2 * time.Second) // Wait before retrying
+		} else {
+			logger.Info("Connected to Redis successfully", "address", redisAddr)
+			return // Exit the function if connection is successful
+		}
 	}
-	logger.Info("Connected to Redis successfully", "address", redisAddr)
+
+	// Panic if all attempts fail
+	logger.Error("Could not connect to Redis after multiple attempts")
+	panic("Failed to connect to Redis")
 }
 
 // GetCachedWeather checks if weather data is cached in Redis.
