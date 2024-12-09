@@ -5,14 +5,16 @@ A Go-based Weather API application that allows users to fetch real-time weather 
 - Weather Data Retrieval: Fetch Weather data from a 3rd party API for any address. Powered by [Visual Crossing’s API](https://www.visualcrossing.com/weather-api)
 - Caching with Redis: Improves response time and reduces external API calls.
 - Scalable Deployment: Easily scalable and containerized for seamless deployment using Docker.
-  Simple Go Server Setup: Easy-to-understand and lightweight server implementation using Go.
+- Simple Go Server Setup: Easy-to-understand and lightweight server implementation using Go.
 - Port Configuration: Runs on port 8080 by default, configurable for flexibility.
 
 ## Prerequisites
-- Go go1.22.3 darwin/arm64 installed on your machine.
-- Ensure Docker is installed and running on your system.
-- Ensure Docker Compose is installed (bundled with Docker Desktop).
-- Ensure curl is installed in your system.
+Before running the Weather API application, ensure you have the following installed on your machine:
+- **Go**: Version 1.22.3 (darwin/arm64)
+- **Docker**: Make sure Docker is installed and running.
+- **Docker Compose**: This is included with Docker Desktop.
+- **cURL**: Ensure cURL is installed for testing API requests.
+
 
 ## Configuration
 - Obtain an API key from [Visual Crossing’s API](https://www.visualcrossing.com/weather-api).
