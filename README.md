@@ -28,19 +28,14 @@ go build -o weather-api
 ```
 
 ## Running the Application
-1. Build the Docker image:  
-   ```docker-compose build```
-2. Start Redis with Docker Compose  
-   The application uses Redis for caching. Use Docker Compose to start the Redis container:  
-   ```docker-compose up -d```
-3. Start the application:  
-   ```./weather-api```
+1. Start the app:  
+   ```docker-compose up --build```
  
 ## Usage
 1. Access the app:
    Open your web browser and navigate to:  
    ```http://localhost:8080/weather?address=sao%20paulo```  
-   Or test via cURL:  
+   Or open a new terminal and test it via cURL :  
    ```curl -v "http://localhost:8080/weather?address=london"```
 
 ## License
